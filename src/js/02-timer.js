@@ -13,7 +13,9 @@ let selectedTime = null;
 startBtn.disabled = true;
 
 startBtn.addEventListener('click', e => {
-  timer.start();
+    timer.start();
+    startBtn.disabled = true;
+    input.disabled = true;
 });
 
 const options = {
@@ -37,7 +39,8 @@ const options = {
 flatpickr(input, options);
 
 class Timer {
-    constructor({onTick}) {
+    constructor({ onTick }) {
+        this.timerID = null;
         this.isActive = false;
         this.onTick = onTick;
     }
@@ -47,13 +50,25 @@ class Timer {
     }
 
     this.isActive = true;
-    setInterval(() => {
-      const currentTime = Date.now();
+    this.timerID = setInterval(() => {
+        const currentTime = Date.now();
+        const deltaTime = selectedTime - currentTime;
+        console.log("Timer  this.timerID=setInterval  deltaTime", deltaTime)
 
-      const deltaTime = convertMs(selectedTime - currentTime);
+      const convertedTime = convertMs(deltaTime);
         console.log('setInterval  deltaTime', deltaTime);
         
-        this.onTick(deltaTime);
+        this.onTick(convertedTime);
+
+        if (convertedTime.days === '00' && 
+            convertedTime.hours === '00' && 
+            convertedTime.minutes === '00' && 
+            convertedTime.seconds === '00') {
+            clearInterval(this.timerID);
+            this.isActive = false;
+            input.disabled = false;
+        }
+
     }, 1000);
     };
 }
